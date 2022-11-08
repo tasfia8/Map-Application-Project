@@ -1,0 +1,157 @@
+/* 
+ * Copyright 2021 University of Toronto
+ *
+ * Permission is hereby granted, to use this software and associated 
+ * documentation files (the "Software") in course work at the University 
+ * of Toronto, or for personal use. Other uses are prohibited, in 
+ * particular the distribution of the Software either publicly or to third 
+ * parties.
+ *
+ * The above copyright notice and this permission notice shall be included in 
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+#include <iostream>
+#include <string>
+#include "m1.h"
+#include "m2.h"
+#include "m3.h"
+#include "m3_helper_functions.h"
+#include "globals.h"
+
+#include "ezgl/application.hpp"
+#include "ezgl/graphics.hpp"
+#include "OSMDatabaseAPI.h"
+
+std::string cityName;
+
+std::vector<const OSMWay*> osm_streets;
+
+//Program exit codes
+constexpr int SUCCESS_EXIT_CODE = 0; //Everyting went OK
+constexpr int ERROR_EXIT_CODE = 1; //An error occured
+constexpr int BAD_ARGUMENTS_EXIT_CODE = 2; //Invalid command-line usage
+
+//The default map to load if none is specified
+std::string default_map_path = "/cad2/ece297s/public/maps/toronto_canada.streets.bin";
+
+// The start routine of your program (main) when you are running your standalone
+// mapper program. This main routine is *never called* when you are running 
+// ece297exercise (the unit tests) -- those tests have their own main routine
+// and directly call your functions in /libstreetmap/src/ to test them.
+// Don't write any code in this file that you want run by ece297exerise -- it 
+// will not be called!
+
+int main(int argc, char** argv) {
+    
+    map_path = "";
+    //std::cout << "argv[1]: " <<  << "\n";
+    for (int i = 1; i < argc; i++) {
+        map_path = map_path + argv[i];
+    }
+
+
+    if (argc == 1) {
+        //Use a default map
+        //std::cout << "aaa";
+        map_path = default_map_path;
+    }        //Get the map from the command line
+    else if (argc >= 2) {
+        //  std::cin >> map_path ;
+        //  map_path = argv[1];
+        // std::cout << map_path;
+
+        //map_path.erase(std::remove(map_path.begin(), map_path.end(), ' '), map_path.end());
+
+        //std::cout << "aaa";
+        //    //Get matching st if the entry is not a full street name or it's not a prefix http://www.cplusplus.com/forum/beginner/25649/
+        std::transform(map_path.begin(), map_path.end(), map_path.begin(), ::tolower);
+        if (map_path == "beijing" || map_path == "beijingchina") {
+            map_path = "/cad2/ece297s/public/maps/beijing_china.streets.bin";
+            cityName = "beijing";
+        } else if (map_path == "cairo" || map_path == "cairoegypt") {
+            map_path = "/cad2/ece297s/public/maps/cairo_egypt.streets.bin";
+            cityName = "cairo";
+        } else if (map_path == "capetown" || map_path == "capetownsouthafrica") {
+            map_path = "/cad2/ece297s/public/maps/cape-town_south-africa.streets.bin";
+        } else if (map_path == "goldenhorseshoe" || map_path == "goldenhorseshoecanada") {
+            map_path = "/cad2/ece297s/public/maps/golden-horseshoe_canada.streets.bin";
+        } else if (map_path == "hamilton" || map_path == "hamiltoncanada") {
+            map_path = "/cad2/ece297s/public/maps/hamilton_canada.streets.bin";
+        } else if (map_path == "hongkong" || map_path == "hongkongchina") {
+            map_path = "/cad2/ece297s/public/maps/hong-kong_china.streets.bin";
+            cityName = "hongkong";
+        } else if (map_path == "iceland" || map_path == "iceland") {
+            map_path = "/cad2/ece297s/public/maps/iceland.streets.bin";
+        } else if (map_path == "interlakenswitzerland" || map_path == "interlaken") {
+            map_path = "/cad2/ece297s/public/maps/interlaken_switzerland.streets.bin";
+        } else if (map_path == "london" || map_path == "londonengland") {
+            map_path = "/cad2/ece297s/public/maps/london_england.streets.bin";
+        } else if (map_path == "moscow" || map_path == "moscowrussia") {
+            map_path = "/cad2/ece297s/public/maps/moscow_russia.streets.bin";
+            cityName = "moscow";
+        } else if (map_path == "newdelhi" || map_path == "newdelhiindia") {
+            map_path = "/cad2/ece297s/public/maps/new-delhi_india.streets.bin";
+            cityName = "newdelhi";
+        } else if (map_path == "newyork" || map_path == "newyorkusa") {
+            map_path = "/cad2/ece297s/public/maps/new-york_usa.streets.bin";
+        } else if (map_path == "riodejaneiro" || map_path == "riodejaneiro") {
+            map_path = "/cad2/ece297s/public/maps/rio-de-janeiro.streets.bin";
+        } else if (map_path == "sainthelena" || map_path == "sainthelena") {
+            map_path = "/cad2/ece297s/public/maps/saint-helena.streets.bin";
+        } else if (map_path == "singaporemapper" || map_path == "singapore") {
+            map_path = "/cad2/ece297s/public/maps/singapore.streets.bin";
+        } else if (map_path == "sydney" || map_path == "sydneyaustralia") {
+            map_path = "/cad2/ece297s/public/maps/sydney_australia.streets.bin";
+        } else if (map_path == "tehran" || map_path == "tehraniran") {
+            map_path = "/cad2/ece297s/public/maps/tehran_iran.streets.bin";
+            cityName = "tehran";
+        } else if (map_path == "tokyo" || map_path == "tokyojapan") {
+            map_path = "/cad2/ece297s/public/maps/tokyo_japan.streets.bin";
+            cityName = "tokyo";
+            //g->set_format_font("notosansCJKJP");
+        } else {
+            map_path = default_map_path;
+            std::cout << "Name did not match any map. Will open default map (Toronto)." << "\n";
+        }
+    } else {
+        //Invalid arguments
+        std::cerr << "Usage: " << argv[0] << " [map_file_path]\n";
+        std::cerr << " If no map_file_path is provided a default map is loaded.\n";
+        return BAD_ARGUMENTS_EXIT_CODE;
+    }
+
+
+
+
+
+
+
+    //Load the map and related data structures
+    bool load_success = loadMap(map_path);
+    if (!load_success) {
+        std::cerr << "Failed to load map '" << map_path << "'\n";
+        return ERROR_EXIT_CODE;
+    }
+
+    std::cout << "Successfully loaded map '" << map_path << "'\n";
+
+
+
+    //You can now do something with the map data
+    drawMap();
+
+
+    //Clean-up the map data and related data structures
+    std::cout << "Closing map\n";
+    closeMap();
+    //  closeOSMDatabase();
+}

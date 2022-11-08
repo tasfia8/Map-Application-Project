@@ -1,0 +1,99 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
+/* 
+ * File:   globals.h
+ * Author: najeebsi
+ *
+ * Created on March 4, 2021, 11:57 AM
+ */
+
+#ifndef GLOBALS_H
+#define GLOBALS_H
+#include <unordered_map>
+#include <map>
+#include <string>
+#include <math.h>
+#include "ezgl/point.hpp"
+
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+    extern std::string map_path;
+
+    extern std::vector< const OSMWay*> osm_streets;
+    extern std::vector<std::vector<StreetSegmentIdx>> street_streetSegments;
+    extern std::vector<std::vector<IntersectionIdx>> street_intersectionId;
+
+    extern double avg_lat;
+    extern double max1_lat, min1_lat, max1_lon, min1_lon;
+    extern std::vector<std::pair<std::string, StreetIdx>> streetNameAndID;
+
+    struct intersection_data {
+        LatLon position;
+        std::string name;
+        int intersectionMouseClkCounter = 0;
+        bool highlight = false; //Not used for drawing intersections.
+    };
+
+    struct POIData {
+        ezgl::point2d *position;
+        std::string name;
+        bool highlight = false; //boolean tells whether or not we highlight, default false, nothing is highlighted
+        double closestPOIDistance;
+        std::string type;
+    };
+
+    extern std::vector<POIData> POIs; //declare vector to store info about points of interest
+
+    extern std::string cityName;
+
+    extern std::vector<intersection_data> intersections;
+    
+    
+    //declare struct to store info about features
+
+    struct FeatureData {
+        std::vector<LatLon> positionsLatLon;
+        std::vector<ezgl::point2d> positions;
+        std::string name;
+        FeatureType type;
+    };
+    extern std::vector<FeatureData> features;
+
+    
+   class Node {
+    public:
+        IntersectionIdx id;
+        std::vector<StreetSegmentIdx> outgoingEdges;
+        std::vector<IntersectionIdx> adjInters;
+        StreetSegmentIdx reachingEdge; //ID of the edge used to reach this node
+        double bestTime;
+        StreetSegmentIdx sourceSS;
+        bool visitedNode;
+    };
+    
+
+    extern std::vector<Node> searchNode;
+    extern std::unordered_map<IntersectionIdx, Node> searchmap;
+    extern std::unordered_map<IntersectionIdx, std::vector<StreetSegmentIdx>> findss;
+    //extern std::vector<std::unordered_map<IntersectionIdx, std::vector<StreetSegmentIdx>>> ajacent_segments; 
+    extern std::vector<std::unordered_map<StreetSegmentIdx, IntersectionIdx>> ajacent_segments;
+    extern std::vector<std::vector<StreetSegmentIdx>> findAdjs; 
+    
+    
+    extern std::vector<bool> isSegPartOfPath;
+    
+    
+ 
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* GLOBALS_H */
