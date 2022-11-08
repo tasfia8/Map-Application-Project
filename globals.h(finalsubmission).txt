@@ -5,9 +5,6 @@
  */
 
 /* 
- * File:   globals.h
- * Author: najeebsi
- *
  * Created on March 4, 2021, 11:57 AM
  */
 
